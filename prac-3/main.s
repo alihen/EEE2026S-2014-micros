@@ -22,28 +22,22 @@ _start:
 
     LDR R5, [R1, #0x10]				@Write value of push buttons to register
 
-@todo, implement delay
-
 loop:
 	LDR R5, [R1, #0x10]				@Write value of push buttons to register
 	LDR R6, =#0x1
 	ANDS R6, R6, R5
-
 	BEQ sw0_1
-
 	LDR R4, =#0x55               @Write pattern to LED (not 0 is low)
     STR R4, [R0, #0x14]
 	LDR R7,  =#0xDBD94
 timer0: 
 	SUBS R7, #1
 	BNE timer0
-
+phase2:
 	LDR R5, [R1, #0x10]				@Write value of push buttons to register
 	LDR R6, =#0x1
 	ANDS R6, R6, R5
-
 	BEQ sw0_2
-
 	LDR R4, =#0xAA               @Write pattern to LED (not 0 is low)
     STR R4, [R0, #0x14]
     LDR R7, =#0xF423F
@@ -51,7 +45,6 @@ timer4:
 	SUBS R7, #1
 	BNE timer4
     B loop
-
 sw0_1:
 	LDR R4, =#0x00               @Write pattern to LED (not 0 is low)
     STR R4, [R0, #0x14]
@@ -59,20 +52,7 @@ sw0_1:
 timer1: 
 	SUBS R7, #1
 	BNE timer1
-	LDR R5, [R1, #0x10]				@Write value of push buttons to register
-	LDR R6, =#0x1
-	ANDS R6, R6, R5
-
-	BEQ sw0_2
-
-	LDR R4, =#0xAA               @Write pattern to LED (not 0 is low)
-    STR R4, [R0, #0x14]
-    LDR R7, =#0xF423F
-timer2: 
-	SUBS R7, #1
-	BNE timer2
-    B loop
-
+	B phase2
 sw0_2:  
 	LDR R4, =#0xFF               @Write pattern to LED (not 0 is low)
     STR R4, [R0, #0x14]
@@ -80,9 +60,7 @@ sw0_2:
 timer3: 
 	SUBS R7, #1
 	BNE timer3	
-    B loop
-
- timer_1:    		
+    B loop 		
 .align
 RAM_Start:  	.word 0x20000000
 GPB_Base:   	.word 0x48000400    @Found at Ref Sheet Pg.41, GPIOB Resides on AHB2
