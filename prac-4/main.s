@@ -31,10 +31,19 @@ _start:
 
 
 copy_to_RAM:
-
         @ Copy the array specified below from flash into the start of RAM.
         @ The advised way to do it is to maintain 3 pointers: destination, source and end.
         @ Also, maintain a counter keeping track of how many bytes are moved - you'll need to know how big the array in RAM is later on.
+        LDR R0, =0x20000000
+        LDR R1, =start_of_data
+        LDR R2, =end_of_data
+loop:       
+        STR R1, [R0]
+        ADDS R0, R0, #4
+        ADDS R1, R1, #4
+        CMP R1, R2
+        BNE loop
+        
 
 copy_to_RAM_complete:                   @ Critical! Once the program hits this label, the automarker will modify the contents of RAM.
 
