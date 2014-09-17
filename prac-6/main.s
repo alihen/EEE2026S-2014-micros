@@ -38,10 +38,10 @@ _start:
     @ enable clock to ADC, Timer 6, GPIOA, GPIOB
     LDR R0, RCC_Base
     LDR R1, RCC_GPB_A_En
-    STR R1, [R0, #0x14]         @Enable GPIOA+B
+    STR R1, [R0, #0x14]         @Enable GPIOA+B clocking
 
     LDR R1, RCC_TIM_ADC_En
-    STR R1, [R0, #0x18]
+    STR R1, [R0, #0x18]         @Enable TIMER and ADC clocking
 
     @ set pins to correct modes
     LDR R0, GPB_Base            @Set GPIOB to Output
@@ -57,8 +57,14 @@ _start:
     STR R3, [R1, #0x0C]         @Set GPIOA Pull Up Resistors
 
     @ enable ADC
+    LDR R0, ADC_Base
+    LDR R1, ADC_Enable
+    STR R1, [R0, #0x08]         
     
     @ wait until ADC ready. As per Section 13.4.4: the ADC must be ready before writing to its other registers
+ADC_warmup:
+        
+
     @ select channel and resolution/alignment 
     @ initialise timer: Set ARR, PSR, enable update interrupt
     @ start counter counting
@@ -95,8 +101,10 @@ RAM_Start:      .word 0x20000000    @start of ram if needed.
 GPB_Base:       .word 0x48000400    @Found at Ref Sheet Pg.41, GPIOB Resides on AHB2
 GPA_Base:       .word 0x48000000    @Found at Ref Sheet Pg.41, GPIOA Resides on AHB2
 RCC_Base:       .word 0x40021000    @Found at Ref Sheet Pg.41
-RCC_GPB_A_En:   .word 0x60000       @RCC_AHBENR at Ref Sheet Pg.120 [Offset 0x14] - Enable Port A and Port B
-RCC_TIM_ADC_En: .word 0x20200        @RCC_AHBENR at Ref Sheet Pg.121 [Offset 0x18] - Enable TIM and ADC
+RCC_GPB_A_En:   .word 0x60000       @RCC_AHBENR at Ref Sheet Pg.120 [Offset 0x14] - Enable Port A and Port B clocking
+RCC_TIM_ADC_En: .word 0x20200        @RCC_AHBENR at Ref Sheet Pg.121 [Offset 0x18] - Enable TIM and ADC clocking
+ADC_Base:       .word 0x40012400    @ADC Base address, found at Ref sheet pg.42
+ADC_Enable:     .word 0x1           @enable the ADC
 GPB_Mode:       .word 0x5555        @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Output]
 GPA_Mode:       .word 0x28000000    @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Input]
 GPA_Pull:       .word 0x5555        @GPIOx_PUPDR at Ref Sheet Pg.161 [Offset 0x0C] - Set as Pull-Up
