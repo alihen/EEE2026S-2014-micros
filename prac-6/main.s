@@ -41,17 +41,23 @@ _start:
     STR R1, [R0, #0x14]         @Enable GPIOA+B clocking
 
     LDR R0, RCC_Base
-    LDR R1, RCC_TIM_ADC_En
-    STR R1, [R0, #0x18]         @Enable TIMER and ADC clocking
+    LDR R1, RCC_ADC_En
+    STR R1, [R0, #0x18]
+    LDR R1, RCC_TIM6_En
+    STR R1, [R0, #0x1C]         @Enable TIMER and ADC clocking
 
     @ set pins to correct modes
     LDR R0, GPB_Base            @Set GPIOB to Output
     LDR R1, GPB_Mode
     STR R1, [R0, #0x0]
 
+    LDR R0, GPB_Base
+    LDR R2, =#0x00              @Write to LED
+    STR R2, [R0, #0x14]
+
     LDR R1, GPA_Base
     LDR R2, GPA_Mode
-    STR R2, [R1, #0x0]          @Set GPIOA to Input
+    STR R2, [R1, #0x0]          @Set GPIOA to Input + Analog on PA5
     
     @ pullups for buttons
     LDR R3, GPA_Pull
@@ -70,11 +76,29 @@ ADC_warmup:
     BEQ ADC_warmup
 
     @ select channel and resolution/alignment 
-    
+    LDR R1, ADC_CH_SEL
+    STR R1, [R0, #0x28]  @set channel to A_IN5 for PA5 
+    @align 0, resolution 0x2
+    LDR R1, ADC_AL_RES
+    STR R1, [R0, #0x0C] @set alignment and resolution
 
     @ initialise timer: Set ARR, PSR, enable update interrupt
+    LDR R0, TIM6_Base
+    LDR R1, TIM6_Prescale
+    STR R1, [R0, #0x28]
+
+    LDR R1, TIM6_ARR
+    STR R1, [R0, #0x2C]
+
+    LDR R1, TIM6_Interrupt_En
+    STR R1, [R0, #0x0C]
+    
+
     @ start counter counting
     @ enable the interrupt for the timer in the NVIC
+
+
+    
 
 infinite_loop:
     NOP
@@ -108,10 +132,17 @@ GPB_Base:       .word 0x48000400    @Found at Ref Sheet Pg.41, GPIOB Resides on 
 GPA_Base:       .word 0x48000000    @Found at Ref Sheet Pg.41, GPIOA Resides on AHB2
 RCC_Base:       .word 0x40021000    @Found at Ref Sheet Pg.41
 RCC_GPB_A_En:   .word 0x60000       @RCC_AHBENR at Ref Sheet Pg.120 [Offset 0x14] - Enable Port A and Port B clocking
-RCC_TIM_ADC_En: .word 0xA00        @RCC_AHBENR at Ref Sheet Pg.121 [Offset 0x18] - Enable TIM and ADC clocking
+RCC_ADC_En:     .word 0x200        @RCC_AHBENR at Ref Sheet Pg.121 [Offset 0x18] - Enable TIM and ADC clocking
+RCC_TIM6_En:    .word 0x10
 ADC_Base:       .word 0x40012400    @ADC Base address, found at Ref sheet pg.42
 ADC_Enable:     .word 0x1           @enable the ADC
 ADC_Ready:       .word 0x1
+ADC_CH_SEL:     .word 0x100000
+ADC_AL_RES:      .word 0x10
+TIM6_Base:       .word 0x40001000
+TIM6_Prescale:   .word 0x9C40
+TIM6_ARR:       .word 0x64
+TIM6_Interrupt_En:  .word 0x1
 GPB_Mode:       .word 0x5555        @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Output]
-GPA_Mode:       .word 0x28000000    @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Input]
+GPA_Mode:       .word 0x28000C00   @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Input]
 GPA_Pull:       .word 0x5555        @GPIOx_PUPDR at Ref Sheet Pg.161 [Offset 0x0C] - Set as Pull-Up
