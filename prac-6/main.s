@@ -22,6 +22,26 @@ vectors:
     .word Default_Handler + 1       @ 0x30: reserved
     .word Default_Handler + 1       @ 0x34: reserved
     .word Default_Handler + 1       @ 0x38: SysTick vector
+    .word Default_Handler + 1       @ 0x3C:
+    .word Default_Handler + 1       @ 0x40
+    .word Default_Handler + 1       @ 0x44
+    .word Default_Handler + 1       @ 0x48
+    .word Default_Handler + 1       @ 0x4C
+    .word Default_Handler + 1       @ 0x50
+    .word Default_Handler + 1       @ 0x54
+    .word Default_Handler + 1       @ 0x58
+    .word Default_Handler + 1       @ 0x5C
+    .word Default_Handler + 1       @ 0x60
+    .word Default_Handler + 1       @ 0x64
+    .word Default_Handler + 1       @ 0x68
+    .word Default_Handler + 1       @ 0x6C
+    .word Default_Handler + 1       @ 0x70
+    .word Default_Handler + 1       @ 0x74
+    .word Default_Handler + 1       @ 0x78
+    .word Default_Handler + 1       @ 0x7C
+    .word Default_Handler + 1       @ 0x80
+    .word TIM6_DAC_IRQHandler + 1       @ 0x84
+
     @ you do the rest....
 
 HardFault_Handler:      @ should never happen, but handle it explcitly in case there's a bug in the code.
@@ -92,10 +112,13 @@ ADC_warmup:
 
     LDR R1, TIM6_Interrupt_En
     STR R1, [R0, #0x0C]
-    
 
     @ start counter counting
+    LDR R1, TIM6_Counter_En
+    STR R1, [R0, #0x00]
+
     @ enable the interrupt for the timer in the NVIC
+
 
 
     
@@ -114,6 +137,11 @@ TIM6_DAC_IRQHandler:
     @ if SW3 is held down: subtract 1 from it
     @ else: add 1 to it.
     @ write it back
+    LDR R0, GPB_Base
+    LDR R1, [R0, #0x14]             @Write to LED
+    LDR R2, =#0x1
+    ADDS R1, R1, R2
+    STR R1, [R0, #0x14]
 
     @ ==== Part 3 suggested algorithm ====
     @ if SW2 is held down:
@@ -123,6 +151,9 @@ TIM6_DAC_IRQHandler:
         @ set the IRQ frequency to the default state
 
     @ return from interrupt here
+    LDR R0, TIM6_Base
+    LDR R1, =#0x1
+    STR R1, [R0, #0x10]
 
 
 .align
@@ -143,6 +174,7 @@ TIM6_Base:       .word 0x40001000
 TIM6_Prescale:   .word 0x9C40
 TIM6_ARR:       .word 0x64
 TIM6_Interrupt_En:  .word 0x1
+TIM6_Counter_En:    .word 0x1
 GPB_Mode:       .word 0x5555        @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Output]
 GPA_Mode:       .word 0x28000C00   @GPIOx_MODER at Ref Sheet Pg.159 [Offset 0x00] [Input]
 GPA_Pull:       .word 0x5555        @GPIOx_PUPDR at Ref Sheet Pg.161 [Offset 0x0C] - Set as Pull-Up
