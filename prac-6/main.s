@@ -149,6 +149,10 @@ SW3: @subs for SW 3
     B interrupt_cont
 
 POT_MOD:
+    @ kick off an ADC conversion from POT0
+        @ADC conversion code goes here
+
+        @ modify timer duration using result of conversion
     @code goes here
 
     B SW2_return
@@ -191,10 +195,7 @@ timer0:
     LDR R6, =#0b100
     ANDS R6, R6, R5
     BEQ POT_MOD
-        @ kick off an ADC conversion from POT0
-        @ADC conversion code goes here
-
-        @ modify timer duration using result of conversion
+        
     @ else:
         @ set the IRQ frequency to the default state
         LDR R0, TIM6_Base 
@@ -226,8 +227,8 @@ ADC_Ready:       .word 0x1
 ADC_CH_SEL:     .word 0x100000
 ADC_AL_RES:      .word 0x10
 TIM6_Base:       .word 0x40001000
-TIM6_Prescale:   .word 0x9C3F
-TIM6_ARR:       .word 0xC8
+TIM6_Prescale:   .word 0x9C3F       @buggy
+TIM6_ARR:       .word 0xC8          @buggy
 TIM6_Interrupt_En:  .word 0x1
 TIM6_Counter_En:    .word 0x1
 Interrupt_ACK:      .word 0x1
