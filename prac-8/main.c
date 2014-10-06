@@ -31,11 +31,11 @@ int main(void) {
         // display max on the LEDs
         *(uint8_t*)0x48000414 = max;
         // delay for 1 s, possibly by calling delay function
-        basic_delay(600000);
+        basic_delay(650000);
         // display min on the LEDs
         *(uint8_t*)0x48000414 = min;
         // delay for 1 s
-        basic_delay(600000);
+        basic_delay(650000);
     }
     
     //Return exit status code
