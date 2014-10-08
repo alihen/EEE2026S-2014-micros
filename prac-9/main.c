@@ -13,10 +13,11 @@ int main(void) {
     RCC->AHBENR |= 1 << 17; 
 
     // configure GPIOA pull-ups
-    GPIOA->PUPDR = 0x5555;
+    GPIOA->PUPDR |= 0x5555 ;
 
     // set pin connected to **POT1** to be in analogue mode
-    GPIOA->MODER = 0x28000C00;
+    GPIOA->MODER |= GPIO_MODER_MODER6 ;
+    GPIOA->MODER |= 0x28000000 ;
 
     // enable clock for GPIOB
     RCC->AHBENR |= 1 << 18; 
@@ -30,21 +31,30 @@ int main(void) {
 
     // enable ADC
     ADC1->CR = ADC_CR_ADEN ;
-     
-    // wait for ADC ready
 
+    // wait for ADC ready
+    while (ADC1->ISR != ADC_ISR_ADRDY ){
+
+    }
 
     // set ADC channel for **POT1**
+    ADC1->CHSELR |= ADC_CHSELR_CHSEL6 ; 
+
     // set rolutions/alignment if necessary. 10-bit res is advised.
+     ADC1->CFGR1 |= 0xA ;
 
     for(EVER) {
         // check if SW3 held down. If so:
+        if (GPIOA->IDR & 0b1000){
             // subtract 1 from value on LEDs
-           // GPIOB->ODR -= 1 ;
-        // if not:
-            // add 1 to the value on the LEDs
+            
             GPIOB->ODR += 1 ;
-
+        }
+        // if not:
+        else{
+            // add 1 to the value on the LEDs
+            GPIOB->ODR -= 1 ;
+        }
         // delay
             variable_delay();
     }
