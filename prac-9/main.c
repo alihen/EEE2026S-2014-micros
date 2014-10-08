@@ -1,4 +1,4 @@
-//STDNUM001 STDNUM002
+//HNDALA006 VCKSHA001
 
 #include <stdint.h>
 #include "stm32f0xx.h"
@@ -9,12 +9,17 @@
 
 int main(void) {
     // enable clock for GPIOA
+    RCC->AHBENR |= 1 << 17; 
+    GPIOA->MODER = 0x28000000;
     // configure GPIOA pull-ups
+    GPIOA->PUPDR = 0x5555;
     // set pin connected to **POT1** to be in analogue mode
 
     // enable clock for GPIOB
+    RCC->AHBENR |= 1 << 18; 
     // set GPIOB[0-7] as outputs
-
+    GPIOB->MODER = 0x5555;
+    GPIOB->ODR = 0xFF;
     // enable clock for ADC
     // enable ADC
     // wait for ADC ready
