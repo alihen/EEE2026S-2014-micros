@@ -7,6 +7,7 @@
 
 // function prototype for variable_delay
 void variable_delay(void) ;
+void delay(uint32_t loop_time);
 
 int main(void) {
     // enable clock for GPIOA
@@ -63,14 +64,30 @@ int main(void) {
 
 void variable_delay(void) {
     // check if SW2 is held down. If so:
-        // kick off conversion
-        // wait for conversion complete. This can be done using a WHILE loop which keeps looping while the EOC flag is 0.
-        // do some operation to the data available in the ADC_DR to scale it to the required timing
-    // if not:
+    if (GPIOA->IDR & 0b0100){
         // set loop iterations to a fixed amount producing a delay of 0.5 s
-        int k;
-        for(k = 0; k < 325000; k++){
+        delay(325000);
+        
+    }
+    // if not:
+    else{
+        // kick off conversion
+        ADC1->CR |= ADC_CR_ADSTART ;
+        // wait for conversion complete. This can be done using a WHILE loop which keeps looping while the EOC flag is 0.
+        while (ADC1->ISR & !ADC_ISR_EOC){
+
         }
+        // do some operation to the data available in the ADC_DR to scale it to the required timing
+        delay(65000 + ((ADC1->DR) * 255 ));
+
+    }
+        
 
     // run a FOR loop, where the number of iterations is set by the value calculated above. 
+}
+
+void delay(uint32_t loop_time){
+    int k;
+        for(k = 0; k < loop_time; k++){
+        }
 }
