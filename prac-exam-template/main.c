@@ -1,5 +1,15 @@
 //HNDALA006
 
+/* Notes: static works for ints, gives a function "memory"
+ * call all global varibables volatile
+ * volatile  uint32_t  foobar;
+ *
+ *
+ *
+ *
+ *
+ */
+
 #include <stdint.h>
 #include "stm32f0xx.h"
 
@@ -33,10 +43,11 @@ int main(void) {
     //setup_tim6(999,4000); // 2 Hz 
 
     // set rolutions/alignment if necessary. current 10-bit
-     ADC1->CFGR1 |= 0xA ;
+     ADC1->CFGR1 |= 0x8 ;
       
     for(EVER) {
-     
+        sw0_held();
+        sw1_held();
     }
     return 0;  // keep compiler happy. 
 }
@@ -45,13 +56,13 @@ int main(void) {
  */
 void sw0_held(){
    if ((GPIOA->IDR & (1 << 0)) == 0){
-    
+            
     } 
 }
 
 void sw1_held(){
     if ((GPIOA->IDR & (1 << 1)) == 0){
-       
+ 
      }
 }
 
@@ -96,7 +107,7 @@ void sw1_pressed(){
             
         }
         previous_state = current_state ;
-        delay(13000);
+        delay(13250);
 };
 
 void sw2_pressed(){
@@ -108,7 +119,7 @@ void sw2_pressed(){
             
         }
         previous_state = current_state ;
-        delay(13000);
+        delay(13250);
 };
 
 void sw3_pressed(){
@@ -134,7 +145,7 @@ void sw3_pressed(){
  */
  void TIM6_DAC_IRQHandler(){
     TIM6->SR &= ~(1 << 0);
-    //do what you need to do in interrupt, keep it short and sweet
+    //do what you need to do in interrupt, keep it short and sweet, use global variables
     
  }
 
@@ -194,8 +205,8 @@ void enable_adc1(){
     }
 
     enable_pot1_channel();
-    //or
-   // enable_pot0_channel();
+    //do either or! don't enable both  channels at the same time!
+   //enable_pot0_channel();
 }
 
 void enable_pot0_channel(){
